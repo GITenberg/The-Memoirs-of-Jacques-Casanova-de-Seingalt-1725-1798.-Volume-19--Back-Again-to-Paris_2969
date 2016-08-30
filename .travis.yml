@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: lw+T1pCKhT/WyNrxDcDos6edDA1Nkr+a/kgv+W5lOuL1Y954JqpdwNp7JVROLNpxBV5qhQISmMmXW+S7etaXz/gu6jEikDss5HFjdbAy85BLtIlhnM0Jo2xVr+yjksYj7ebj8MqYFO5nuTADWYJ92RvPlQhB3SwHKayMq825XMAo0LmdSFk/arPdFN318H7v8wbjv6zqy2i7IiwbpGkS5IkmHI9gPfVK3Eo5qHmil9Qjay+W5m1yBQWnu3/WwRKlZJj/5s27OyaXbNJQffjQGvcrD5qU55bWhQmoDgrD510rVDvOF/8PZaS4Zs3/LmS09Xx0RVEx+aRhW714jPqQbPIIhLoCPQ3n3hnHtR2es93QFXwZ3qOviRznASvn2O3KbYmDq9Xu90GnBnPidcTP+AYkYTo0ilOPIGdMR50VwGTR8GM/1M8yPBd731jKrwIiOqBurV4fDFaU+VifBkcTe2N25dh3+qpthQ8T+E+hsDZngVGEydI2Q2KoC+or0vxR6p/SEXvI6JG5y7fjKSkGx4p5buhwIYzXovw13tAZYbDVmotZKW00cnA4MphYhGe+VDBLtZw4kXGr4y9AwYrIvxr7DyVw1nL2/0KX63Xt8/h/q/KUgg4DOy7Fq8qfGAKJOF93IrBHjWvXIAOdzGESL2tpw+YroHNE2eLRWCu40SU=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/The-Memoirs-of-Jacques-Casanova-de-Seingalt-1725-1798.-Volume-19--Back-Again-to-Paris_2969
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
